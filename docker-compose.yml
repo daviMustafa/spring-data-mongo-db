@@ -1,0 +1,41 @@
+version: "3.3"
+
+networks:
+  host:
+
+services:
+  springboot-mongodb:
+    image: springboot-mongodb:1.0
+    container_name: backend
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8081
+    expose:
+      - "8081"
+    depends_on:
+      - mongo
+    links:
+      - mongo
+    networks:
+      - host
+    hostname: localhost
+
+  mongo:
+    hostname: localhost
+    image: mongo:4.4.2
+    container_name: db
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: test
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      ## this line retains mongo data.
+      ##- ./mongo-volume:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - host
